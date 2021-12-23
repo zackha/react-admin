@@ -184,13 +184,11 @@ const SelectArrayInput = (props: SelectArrayInputProps) => {
                     value={getChoiceValue(choice)}
                     disabled={getDisableValue(choice)}
                 >
-                    {!!createItem && choice?.id === createItem.id
-                        ? createItem.name
-                        : renderMenuItemOption(choice)}
+                    {renderMenuItemOption(choice)}
                 </MenuItem>
             ) : null;
         },
-        [getChoiceValue, getDisableValue, renderMenuItemOption, createItem]
+        [getChoiceValue, getDisableValue, renderMenuItemOption]
     );
 
     if (loading) {
