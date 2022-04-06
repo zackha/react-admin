@@ -36,6 +36,10 @@ export default {
     },
     server: {
         port: 8080,
+        hmr: {
+            port: 8080,
+            clientPort: process.env.CODESANDBOX_SSE ? 443 : 8080,
+        },
     },
     define: { 'process.env': {} },
 };
