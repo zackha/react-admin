@@ -4,7 +4,6 @@
     "view": "browser",
     "template": "node",
     "container": {
-        "node": "14",
-        "port": 8080
+        "node": "14"
     }
 }
