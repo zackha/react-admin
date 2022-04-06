@@ -3,8 +3,8 @@
     "version": "4.0.0-rc.1",
     "private": true,
     "scripts": {
-        "start-webpack": "webpack-dev-server --progress --color --hot --mode development",
-        "start": "vite",
+        "start": "webpack-dev-server --progress --color --hot --mode development",
+        "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
         "type-check": "tsc --noEmit"
