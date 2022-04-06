@@ -1,23 +1,5 @@
 import reactRefresh from '@vitejs/plugin-react-refresh';
 import path from 'path';
-import fs from 'fs';
-
-const packages = fs.readdirSync(path.resolve(__dirname, '../../packages'));
-const aliases = packages.map(dirName => {
-    const packageJson = require(path.resolve(
-        __dirname,
-        '../../packages',
-        dirName,
-        'package.json'
-    ));
-    return {
-        find: new RegExp(`^${packageJson.name}$`),
-        replacement: path.resolve(
-            __dirname,
-            `../../packages/${packageJson.name}/src`
-        ),
-    };
-}, {});
 
 /**
  * https://vitejs.dev/config/
@@ -26,13 +8,35 @@ const aliases = packages.map(dirName => {
 export default {
     plugins: [reactRefresh()],
     resolve: {
-        alias: [
-            ...aliases,
-            {
-                find: /^@mui\/icons-material\/(.*)/,
-                replacement: '@mui/icons-material/esm/$1',
-            },
-        ],
+        alias: process.env.CODESANDBOX_SSE
+            ? []
+            : [
+                  {
+                      find: /^react-admin$/,
+                      replacement: path.resolve(
+                          __dirname,
+                          '../../packages/react-admin/src'
+                      ),
+                  },
+                  {
+                      find: /^ra-data-local-storage$/,
+                      replacement: path.resolve(
+                          __dirname,
+                          '../../packages/ra-data-localstorage/src'
+                      ),
+                  },
+                  {
+                      find: /^ra-(.*)$/,
+                      replacement: path.resolve(
+                          __dirname,
+                          '../../packages/ra-$1/src'
+                      ),
+                  },
+                  {
+                      find: /^@mui\/icons-material\/(.*)/,
+                      replacement: '@mui/icons-material/esm/$1',
+                  },
+              ],
     },
     server: {
         port: 8080,
