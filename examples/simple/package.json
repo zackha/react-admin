@@ -3,7 +3,7 @@
     "version": "4.0.0-rc.1",
     "private": true,
     "scripts": {
-        "dev": "webpack-dev-server --progress --color --hot --mode development",
+        "start-webpack": "webpack-dev-server --progress --color --hot --mode development",
         "start": "vite",
         "build": "vite build",
         "serve": "vite preview",
