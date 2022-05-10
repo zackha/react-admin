@@ -8,6 +8,10 @@ import { CreateController } from './CreateController';
 import { testDataProvider } from '../../dataProvider';
 import { useNotificationContext } from '../../notification';
 import { CoreAdminContext } from '../../core';
+import {
+    SaveContextProvider,
+    useRegisterPostSuccessCallback,
+} from '../saveContext';
 
 describe('useCreateController', () => {
     describe('getRecordFromLocation', () => {
@@ -396,5 +400,65 @@ describe('useCreateController', () => {
         expect(create).toHaveBeenCalledWith('posts', {
             data: { foo: 'bar', transformed: true },
         });
+    });
+
+    it('should allow to register post success callbacks', async () => {
+        let saveCallback;
+        const create = jest
+            .fn()
+            .mockImplementationOnce((_, { data }) =>
+                Promise.resolve({ data: { id: 123, ...data } })
+            );
+        const dataProvider = testDataProvider({
+            create,
+        });
+        const callback = jest.fn();
+
+        const Child = () => {
+            useRegisterPostSuccessCallback(callback);
+            return null;
+        };
+        render(
+            <CoreAdminContext dataProvider={dataProvider}>
+                <CreateController {...defaultProps}>
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <Child />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </CreateController>
+            </CoreAdminContext>
+        );
+        await act(async () => saveCallback({ foo: 'bar' }));
+
+        expect(create).toHaveBeenCalledWith('posts', {
+            data: { foo: 'bar' },
+            meta: undefined,
+        });
+        expect(callback).toHaveBeenCalledWith(
+            { id: 123, foo: 'bar' },
+            {
+                data: {
+                    foo: 'bar',
+                },
+                resource: 'posts',
+            },
+            undefined
+        );
     });
 });

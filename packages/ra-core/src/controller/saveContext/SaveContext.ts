@@ -11,6 +11,8 @@ export interface SaveContextValue<RecordType extends RaRecord = any> {
     save?: SaveHandler<RecordType>;
     saving?: boolean;
     mutationMode?: MutationMode;
+    registerPostSuccessCallback?: (callback: OnSuccess) => void;
+    unregisterPostSuccessCallback?: (callback: OnSuccess) => void;
 }
 
 export type SaveHandler<RecordType> = (

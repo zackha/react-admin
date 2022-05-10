@@ -10,16 +10,12 @@ import { CoreAdminContext } from '../../core';
 import { useNotificationContext } from '../../notification';
 import { SaveContextProvider } from '..';
 import undoableEventEmitter from '../../dataProvider/undoableEventEmitter';
+import { useRegisterPostSuccessCallback } from '../saveContext';
 
 describe('useEditController', () => {
     const defaultProps = {
         id: 12,
         resource: 'posts',
-        debounce: 200,
-    };
-
-    const saveContextValue = {
-        save: jest.fn(),
     };
 
     it('should call the dataProvider.getOne() function on mount', async () => {
@@ -31,11 +27,26 @@ describe('useEditController', () => {
         const dataProvider = ({ getOne } as unknown) as DataProvider;
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController {...defaultProps}>
-                        {({ record }) => <div>{record && record.title}</div>}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController {...defaultProps}>
+                    {({
+                        record,
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => (
+                        <SaveContextProvider
+                            value={{
+                                save,
+                                saving,
+                                registerPostSuccessCallback,
+                                unregisterPostSuccessCallback,
+                            }}
+                        >
+                            <div>{record && record.title}</div>
+                        </SaveContextProvider>
+                    )}
+                </EditController>
             </CoreAdminContext>
         );
         await waitFor(() => {
@@ -61,13 +72,26 @@ describe('useEditController', () => {
                     <Route
                         path="/posts/:id"
                         element={
-                            <SaveContextProvider value={saveContextValue}>
-                                <EditController resource="posts">
-                                    {({ record }) => (
+                            <EditController resource="posts">
+                                {({
+                                    record,
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }) => (
+                                    <SaveContextProvider
+                                        value={{
+                                            save,
+                                            saving,
+                                            registerPostSuccessCallback,
+                                            unregisterPostSuccessCallback,
+                                        }}
+                                    >
                                         <div>{record && record.title}</div>
-                                    )}
-                                </EditController>
-                            </SaveContextProvider>
+                                    </SaveContextProvider>
+                                )}
+                            </EditController>
                         }
                     />
                 </Routes>
@@ -92,7 +116,23 @@ describe('useEditController', () => {
                     resource="posts"
                     queryOptions={{ onError }}
                 >
-                    {() => <div />}
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => (
+                        <SaveContextProvider
+                            value={{
+                                save,
+                                saving,
+                                registerPostSuccessCallback,
+                                unregisterPostSuccessCallback,
+                            }}
+                        >
+                            <div />
+                        </SaveContextProvider>
+                    )}
                 </EditController>
             </CoreAdminContext>
         );
@@ -116,13 +156,23 @@ describe('useEditController', () => {
         } as unknown) as DataProvider;
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                    >
-                        {({ record, save }) => {
-                            return (
+                <EditController {...defaultProps} mutationMode="pessimistic">
+                    {({
+                        record,
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
                                 <>
                                     <p>{record?.test}</p>
                                     <button
@@ -132,10 +182,10 @@ describe('useEditController', () => {
                                         }
                                     />
                                 </>
-                            );
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
 
@@ -167,10 +217,23 @@ describe('useEditController', () => {
         } as unknown) as DataProvider;
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController {...defaultProps}>
-                        {({ save, record }) => {
-                            return (
+                <EditController {...defaultProps}>
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                        record,
+                    }) => {
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
                                 <>
                                     <p>{record?.test}</p>
                                     <button
@@ -180,10 +243,10 @@ describe('useEditController', () => {
                                         }
                                     />
                                 </>
-                            );
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await waitFor(() => {
@@ -224,17 +287,29 @@ describe('useEditController', () => {
         let saveCallback;
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                    >
-                        {({ save, record }) => {
-                            saveCallback = save;
-                            return <>{JSON.stringify(record)}</>;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController {...defaultProps} mutationMode="pessimistic">
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                        record,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <>{JSON.stringify(record)}</>
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -269,33 +344,45 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController {...defaultProps} mutationMode="pessimistic">
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />;
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
-        await new Promise(resolve => setTimeout(resolve, 10));
-        expect(notificationsSpy).toEqual([
-            {
-                message: 'ra.notification.updated',
-                type: 'info',
-                notificationOptions: {
-                    messageArgs: {
-                        smart_count: 1,
+        await waitFor(() =>
+            expect(notificationsSpy).toEqual([
+                {
+                    message: 'ra.notification.updated',
+                    type: 'info',
+                    notificationOptions: {
+                        messageArgs: {
+                            smart_count: 1,
+                        },
+                        undoable: false,
                     },
-                    undoable: false,
                 },
-            },
-        ]);
+            ])
+        );
     });
 
     it('should allow mutationOptions to override the default success side effects in pessimistic mode', async () => {
@@ -319,23 +406,36 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        mutationOptions={{ onSuccess }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    mutationOptions={{ onSuccess }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
-        await new Promise(resolve => setTimeout(resolve, 10));
-        expect(onSuccess).toHaveBeenCalled();
+        await waitFor(() => expect(onSuccess).toHaveBeenCalled());
         expect(notificationsSpy).toEqual([]);
     });
 
@@ -360,23 +460,36 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="optimistic"
-                        mutationOptions={{ onSuccess }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="optimistic"
+                    mutationOptions={{ onSuccess }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
-        await new Promise(resolve => setTimeout(resolve, 10));
-        expect(onSuccess).toHaveBeenCalled();
+        await waitFor(() => expect(onSuccess).toHaveBeenCalled());
         expect(notificationsSpy).toEqual([]);
     });
 
@@ -401,22 +514,35 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationOptions={{ onSuccess }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationOptions={{ onSuccess }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
-        await new Promise(resolve => setTimeout(resolve, 10));
-        expect(onSuccess).toHaveBeenCalled();
+        await waitFor(() => expect(onSuccess).toHaveBeenCalled());
         expect(notificationsSpy).toEqual([]);
     });
 
@@ -442,18 +568,32 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        mutationOptions={{ onSuccess }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    mutationOptions={{ onSuccess }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () =>
@@ -465,7 +605,7 @@ describe('useEditController', () => {
             )
         );
         expect(onSuccess).not.toHaveBeenCalled();
-        expect(onSuccessSave).toHaveBeenCalled();
+        await waitFor(() => expect(onSuccessSave).toHaveBeenCalled());
         expect(notificationsSpy).toEqual([]);
     });
 
@@ -489,17 +629,28 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController {...defaultProps} mutationMode="pessimistic">
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
@@ -534,23 +685,37 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        mutationOptions={{ onError }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    mutationOptions={{ onError }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
         await new Promise(resolve => setTimeout(resolve, 10));
-        expect(onError).toHaveBeenCalled();
+        await waitFor(() => expect(onError).toHaveBeenCalled());
         expect(notificationsSpy).toEqual([]);
     });
 
@@ -575,23 +740,38 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="optimistic"
-                        mutationOptions={{ onError }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="optimistic"
+                    mutationOptions={{ onError }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
+        await waitFor(() => expect(saveCallback).toBeDefined());
         await act(async () => saveCallback({ foo: 'bar' }));
         await new Promise(resolve => setTimeout(resolve, 10));
-        expect(onError).toHaveBeenCalled();
+        await waitFor(() => expect(onError).toHaveBeenCalled());
         // we get the (optimistic) success notification but not the error notification
         expect(notificationsSpy).toEqual([
             {
@@ -629,18 +809,32 @@ describe('useEditController', () => {
         render(
             <CoreAdminContext dataProvider={dataProvider}>
                 <Notification />
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        mutationOptions={{ onError }}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    mutationOptions={{ onError }}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () =>
@@ -673,18 +867,32 @@ describe('useEditController', () => {
         }));
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        transform={transform}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    transform={transform}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () => saveCallback({ foo: 'bar' }));
@@ -718,18 +926,32 @@ describe('useEditController', () => {
         }));
         render(
             <CoreAdminContext dataProvider={dataProvider}>
-                <SaveContextProvider value={saveContextValue}>
-                    <EditController
-                        {...defaultProps}
-                        mutationMode="pessimistic"
-                        transform={transform}
-                    >
-                        {({ save }) => {
-                            saveCallback = save;
-                            return null;
-                        }}
-                    </EditController>
-                </SaveContextProvider>
+                <EditController
+                    {...defaultProps}
+                    mutationMode="pessimistic"
+                    transform={transform}
+                >
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <div />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
             </CoreAdminContext>
         );
         await act(async () =>
@@ -749,6 +971,69 @@ describe('useEditController', () => {
             id: 12,
             data: { foo: 'bar', transformed: true },
             previousData: undefined,
+        });
+    });
+
+    it('should allow to register post success callbacks', async () => {
+        let saveCallback;
+        const update = jest
+            .fn()
+            .mockImplementationOnce((_, { id, data }) =>
+                Promise.resolve({ data: { id, ...data } })
+            );
+        const dataProvider = ({
+            getOne: () => Promise.resolve({ data: { id: 12 } }),
+            update,
+        } as unknown) as DataProvider;
+        const callback = jest.fn();
+
+        const Child = () => {
+            useRegisterPostSuccessCallback(callback);
+            return null;
+        };
+        render(
+            <CoreAdminContext dataProvider={dataProvider}>
+                <EditController {...defaultProps} mutationMode="pessimistic">
+                    {({
+                        save,
+                        saving,
+                        registerPostSuccessCallback,
+                        unregisterPostSuccessCallback,
+                    }) => {
+                        saveCallback = save;
+                        return (
+                            <SaveContextProvider
+                                value={{
+                                    save,
+                                    saving,
+                                    registerPostSuccessCallback,
+                                    unregisterPostSuccessCallback,
+                                }}
+                            >
+                                <Child />
+                            </SaveContextProvider>
+                        );
+                    }}
+                </EditController>
+            </CoreAdminContext>
+        );
+
+        // Wait for the callback to be registered
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await (() => expect(saveCallback).toBeDefined());
+        await act(async () => saveCallback({ foo: 'bar' }));
+
+        await waitFor(() => {
+            expect(callback).toHaveBeenCalledWith(
+                { id: 12, foo: 'bar' },
+                {
+                    data: {
+                        foo: 'bar',
+                    },
+                    resource: 'posts',
+                },
+                expect.any(Object)
+            );
         });
     });
 });

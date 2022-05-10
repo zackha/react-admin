@@ -30,6 +30,8 @@ export const EditContext = createContext<EditControllerResult>({
     resource: null,
     save: null,
     saving: null,
+    registerPostSuccessCallback: null,
+    unregisterPostSuccessCallback: null,
 });
 
 EditContext.displayName = 'EditContext';
